@@ -1,0 +1,162 @@
+
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+
+public class BookingApp extends Application {
+
+    // A list that holds Accommodation objects and updates the UI automatically
+    private final ObservableList<Accommodation> items =
+            FXCollections.observableArrayList();
+
+    // current logged-in user
+    private final User currentUser = new User(1, "Elisabeth");
+
+    // ListView to display accommodation items
+    private ListView<Accommodation> listView;
+
+    // Label to show messages to the user
+    private Label messageLabel;
+
+    // Public constructor
+    public BookingApp() {
+    }
+
+    // This method runs automatically when the JavaFX app starts
+    @Override
+    public void start(Stage stage) {
+
+        // Creates accommodation objects
+        Accommodation flat = new Flat(1, "Flat", "London", 280.0, true);
+        Accommodation hotel = new Hotel(2, "Hotel", "Bournemouth", 80.0, 4);
+        Accommodation villa = new Villa(3, "Villa", "Scotland", 350.0, true);
+
+        // Add all accommodations to the observable list
+        items.addAll(flat, hotel, villa);
+
+        // Create a ListView and give it the list of items to display
+        listView = new ListView<>(items);
+
+        // Automatically select the first item in the list
+        listView.getSelectionModel().selectFirst();
+
+        // Create a button for booking the selected item
+        Button bookButton = new Button("Book Selected");
+
+        // Define what happens when the book button is clicked
+        bookButton.setOnAction(e -> bookSelectedItem());
+
+        // Create a button for cancelling a booking
+        Button cancelButton = new Button("Cancel Selected");
+
+        // Define what happens when the cancel button is clicked
+        cancelButton.setOnAction(e -> cancelSelectedItem());
+
+        // Label that shows instructions or feedback messages
+        messageLabel = new Label("Select an item and click a button.");
+
+        // VBox arranges components vertically with 10px spacing
+        VBox root = new VBox(
+                10,
+                new Label("SpareB&B - Bookable Items"), // Title label
+                listView,                               // List of accommodations
+                bookButton,                             // Book button
+                cancelButton,                           // Cancel button
+                messageLabel                            // Message label
+        );
+
+      
+        root.setPadding(new Insets(12));
+
+        
+        Scene scene = new Scene(root, 450, 380);
+
+       
+        stage.setTitle("SpareB&B Booking (Sprint 3 GUI)");
+
+     
+        stage.setScene(scene);
+
+        stage.show();
+    }
+
+    // Method that runs when the user clicks "Book Selected"
+    private void bookSelectedItem() {
+
+        // Get the currently selected accommodation
+        Accommodation selected =
+                listView.getSelectionModel().getSelectedItem();
+
+        // If nothing is selected, show a message and stop
+        if (selected == null) {
+            messageLabel.setText("Please select an item first.");
+            return;
+        }
+
+        // If the accommodation is already booked
+        if (selected.isBooked()) {
+            messageLabel.setText(
+                    "Sorry " + currentUser.getName() + ", " +
+                    selected.getName() + " is already booked."
+            );
+        } else {
+            // Book the accommodation for the current user
+            currentUser.book(selected);
+
+            // Show confirmation message
+            messageLabel.setText(
+                    currentUser.getName() + " booked " +
+                    selected.getName() + "."
+            );
+        }
+
+        // Refresh the list so booking status updates visually
+        refreshList();
+    }
+
+    // Method that runs when the user clicks "Cancel Selected"
+    private void cancelSelectedItem() {
+
+        // Get the currently selected accommodation
+        Accommodation selected =
+                listView.getSelectionModel().getSelectedItem();
+
+        // If nothing is selected, show a message and stop
+        if (selected == null) {
+            messageLabel.setText("Please select an item first.");
+            return;
+        }
+
+        // Attempt to cancel the booking
+        currentUser.cancel(selected);
+
+        // Give feedback to the user
+        if (!selected.isBooked()) {
+            messageLabel.setText("Cancel done (if you had booked it).");
+        } else {
+            messageLabel.setText("No booking was cancelled.");
+        }
+
+        // Refresh the list view
+        refreshList();
+    }
+
+    // Forces the ListView to redraw items
+    // (useful when toString() output changes)
+    private void refreshList() {
+        listView.refresh();
+    }
+
+    // Main method that launches the JavaFX application
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
