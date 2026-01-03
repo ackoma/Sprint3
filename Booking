@@ -1,0 +1,49 @@
+
+public class Booking {
+
+    private static int nextID = 1;        // shared counter for booking IDs
+    private int id;                       // unique booking ID
+    private User user;                   // who made the booking
+    private Accommodation accommodation;  // what was booked
+    private boolean active;              // true if booking is still active
+
+    // Constructor
+    public Booking(User user, Accommodation accommodation) {
+        this.id = nextID++;
+        this.user = user;
+        this.accommodation = accommodation;
+        this.active = true;
+
+        // mark the accommodation as booked
+        accommodation.setBooked(true);
+    }
+
+    // Getter methods
+    public int getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Accommodation getAccommodation() {
+        return accommodation;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    // Cancel booking
+    public void cancel() {
+        if (!active) {
+            System.out.println("Booking #" + id + " is already cancelled.");
+            return;
+        }
+
+        active = false;
+        accommodation.setBooked(false);
+        System.out.println("Booking #" + id + " cancelled.");
+    }
+}
