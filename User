@@ -1,0 +1,49 @@
+public class User {
+
+    private int id; // User ID
+    private String name; // User name
+    private Booking currentBooking; // Stores their booking 
+
+    // Constructor
+    public User(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    // Getter
+    public String getName() {
+        return name;
+    }
+
+    // Booking method 
+    public void book(Accommodation place) {
+
+        if (place.isBooked()) {
+            System.out.println("Sorry " + name + ", " + place.getName() + " is already booked.");
+            return;
+        }
+
+        if (currentBooking != null && currentBooking.isActive()) {
+            System.out.println(name + " already has a booking. Cancel first.");
+            return;
+        }
+
+        // create a Booking
+        currentBooking = new Booking(this, place);
+        System.out.println(name + " booked " + place.getName());
+    }
+
+    // Cancel booking
+    public void cancel(Accommodation place) {
+
+        if (currentBooking != null
+                && currentBooking.isActive()
+                && currentBooking.getAccommodation().equals(place)) {
+
+            currentBooking.cancel();
+            currentBooking = null;
+        } else {
+            System.out.println(name + " has no booking for " + place.getName());
+        }
+    }
+}
